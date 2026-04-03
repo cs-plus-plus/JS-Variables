@@ -1,104 +1,237 @@
-name: Unit 8 – Alerts + Prompts Autograding
-'on':
-  - push
-  - pull_request
-  - workflow_dispatch
+name: autograde
 
-permissions:
-  checks: write
-  actions: read
-  contents: read
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
-  run-autograding-tests:
+  autograde:
     runs-on: ubuntu-latest
-    if: github.actor != 'github-classroom[bot]'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    timeout-minutes: 10
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # ---- Test 1: convertTemp() ----
-      - name: 'convertTemp() – 212°F → "Temperature in Celsius: 100.00"'
-        id: test_convert_temp
+      - name: Install Jest
+        run: |
+          npm init -y >/dev/null 2>&1 || true
+          npm install --save-dev jest@29
+
+      - name: Write jest config
+        run: |
+          cat > jest.config.cjs <<'EOF'
+          module.exports = {
+            testEnvironment: 'node',
+            testMatch: ['**/__tests__/**/*.test.cjs']
+          };
+          EOF
+
+      - name: Write tests
+        run: |
+          mkdir -p __tests__
+          cat > __tests__/variables.test.cjs <<'TESTEOF'
+          const fs = require('fs');
+          const path = require('path');
+          const vm = require('vm');
+
+          const source = fs.readFileSync(path.resolve('script.js'), 'utf8');
+
+          function runFunc(funcName, promptValues) {
+            let promptIndex = 0;
+            const alerts = [];
+            const sandbox = {
+              prompt: function(msg) { return promptValues[promptIndex++]; },
+              alert: function(msg) { alerts.push(String(msg)); },
+              console: { log: function(){}, error: function(){}, warn: function(){} },
+              parseInt: parseInt,
+              parseFloat: parseFloat,
+              isNaN: isNaN,
+              NaN: NaN,
+              undefined: undefined,
+              String: String,
+              Number: Number,
+              Math: Math,
+            };
+            vm.createContext(sandbox);
+            vm.runInContext(source, sandbox, { timeout: 5000 });
+            if (typeof sandbox[funcName] === 'function') {
+              sandbox[funcName]();
+            }
+            return alerts;
+          }
+
+          describe('Unit 8.1 – Variables & Math', function() {
+
+            test('greeting output', function() {
+              let alerts = runFunc('greeting', ['Alice', 'blue']);
+              expect(alerts.length).toBeGreaterThanOrEqual(1);
+              expect(alerts[0]).toBe('Hello, Alice! Your favorite color is blue.');
+            });
+
+            test('does not use var keyword', function() {
+              let lines = source.split('\n');
+              for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (line.startsWith('//')) continue;
+                if (line.startsWith('*')) continue;
+                expect(line).not.toMatch(/\bvar\s+[a-zA-Z_$]/);
+              }
+            });
+
+            test('uses const keyword', function() {
+              expect(source).toMatch(/\bconst\s+[a-zA-Z_$]/);
+            });
+
+            test('convertTemp 212 to 100', function() {
+              let alerts = runFunc('convertTemp', ['212']);
+              expect(alerts.length).toBeGreaterThanOrEqual(1);
+              expect(alerts[0]).toBe('Temperature in Celsius: 100.00');
+            });
+
+            test('convertTemp 32 to 0', function() {
+              let alerts = runFunc('convertTemp', ['32']);
+              expect(alerts.length).toBeGreaterThanOrEqual(1);
+              expect(alerts[0]).toBe('Temperature in Celsius: 0.00');
+            });
+
+            test('circleArea radius 5', function() {
+              let alerts = runFunc('circleArea', ['5']);
+              expect(alerts.length).toBeGreaterThanOrEqual(1);
+              expect(alerts[0]).toBe('Area of the circle: 78.54');
+            });
+
+            test('circleArea radius 1', function() {
+              let alerts = runFunc('circleArea', ['1']);
+              expect(alerts.length).toBeGreaterThanOrEqual(1);
+              expect(alerts[0]).toBe('Area of the circle: 3.14');
+            });
+
+          });
+          TESTEOF
+
+      # === Graded steps (sum to 100) ===
+      - id: t_greeting
+        name: greeting output
         uses: classroom-resources/autograding-command-grader@v1
         with:
-          test-name: 'convertTemp() – 212°F → "Temperature in Celsius: 100.00"'
-          setup-command: echo "No setup"
-          command: >
-            node -e "
-              // stub prompt/alert
-              global.__prompts = [];
-              global.prompt = (msg) => { global.__prompts.push(String(msg)); return '212'; };
-              global.__alerts = [];
-              global.alert  = (msg) => { global.__alerts.push(String(msg)); };
+          test-name: greeting output
+          setup-command: echo "ready"
+          command: npx jest --runInBand --testNamePattern "greeting output$"
+          timeout: 60
+          max-score: 15
 
-              // load student code into GLOBAL scope (no exports required)
-              const fs = require('fs');
-              const vm = require('vm');
-              global.window = global;
-              const code = fs.readFileSync('script.js', 'utf8');
-              vm.runInThisContext(code, { filename: 'script.js' });
-
-              // call & assert
-              if (typeof convertTemp !== 'function') { console.error('convertTemp() not found'); process.exit(1); }
-              convertTemp();
-
-              const expectedPrompt = 'Enter temperature in Fahrenheit';
-              const expectedAlert  = 'Temperature in Celsius: 100.00';
-
-              if (!global.__prompts.includes(expectedPrompt)) { console.error('Bad prompt', global.__prompts); process.exit(1); }
-              if (!global.__alerts.includes(expectedAlert))   { console.error('Bad alert', global.__alerts);   process.exit(1); }
-              process.exit(0);
-            "
-          timeout: 20
-          max-score: 50
-
-      # ---- Test 2: circleArea() ----
-      - name: 'circleArea() – r=5 → "Area of the circle: 78.54"'
-        id: test_circle_area
+      - id: t_no_var
+        name: does not use var keyword
         uses: classroom-resources/autograding-command-grader@v1
         with:
-          test-name: 'circleArea() – r=5 → "Area of the circle: 78.54"'
-          setup-command: echo "No setup"
-          command: >
-            node -e "
-              // stub prompt/alert
-              global.__prompts = [];
-              global.prompt = (msg) => { global.__prompts.push(String(msg)); return '5'; };
-              global.__alerts = [];
-              global.alert  = (msg) => { global.__alerts.push(String(msg)); };
+          test-name: does not use var keyword
+          setup-command: echo "ready"
+          command: npx jest --runInBand --testNamePattern "does not use var keyword$"
+          timeout: 60
+          max-score: 10
 
-              // load student code into GLOBAL scope (no exports required)
-              const fs = require('fs');
-              const vm = require('vm');
-              global.window = global;
-              const code = fs.readFileSync('script.js', 'utf8');
-              vm.runInThisContext(code, { filename: 'script.js' });
+      - id: t_const
+        name: uses const keyword
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: uses const keyword
+          setup-command: echo "ready"
+          command: npx jest --runInBand --testNamePattern "uses const keyword$"
+          timeout: 60
+          max-score: 10
 
-              // call & assert
-              if (typeof circleArea !== 'function') { console.error('circleArea() not found'); process.exit(1); }
-              circleArea();
+      - id: t_temp212
+        name: convertTemp 212 to 100
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: convertTemp 212 to 100
+          setup-command: echo "ready"
+          command: npx jest --runInBand --testNamePattern "convertTemp 212 to 100$"
+          timeout: 60
+          max-score: 25
 
-              const expectedPrompt = 'Enter circle radius';
-              const expectedAlert  = 'Area of the circle: 78.54';
+      - id: t_temp32
+        name: convertTemp 32 to 0
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: convertTemp 32 to 0
+          setup-command: echo "ready"
+          command: npx jest --runInBand --testNamePattern "convertTemp 32 to 0$"
+          timeout: 60
+          max-score: 15
 
-              if (!global.__prompts.includes(expectedPrompt)) { console.error('Bad prompt', global.__prompts); process.exit(1); }
-              if (!global.__alerts.includes(expectedAlert))   { console.error('Bad alert', global.__alerts);   process.exit(1); }
-              process.exit(0);
-            "
-          timeout: 20
-          max-score: 50
+      - id: t_circle5
+        name: circleArea radius 5
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: circleArea radius 5
+          setup-command: echo "ready"
+          command: npx jest --runInBand --testNamePattern "circleArea radius 5$"
+          timeout: 60
+          max-score: 15
 
-      # ---- Report back to GitHub Classroom (shows grades) ----
-      - name: Autograding Reporter
+      - id: t_circle1
+        name: circleArea radius 1
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: circleArea radius 1
+          setup-command: echo "ready"
+          command: npx jest --runInBand --testNamePattern "circleArea radius 1$"
+          timeout: 60
+          max-score: 10
+
+      # Summary
+      - name: Build summary
+        shell: bash
+        run: |
+          npx jest --runInBand --json --outputFile=jest-summary.json || true
+          node - <<'NODE'
+          const fs = require("fs");
+          let jr = {};
+          try { jr = JSON.parse(fs.readFileSync("jest-summary.json","utf8")); } catch {}
+          const assertions = (jr.testResults||[]).flatMap(t => t.assertionResults || []);
+
+          const tests = [
+            { name: "greeting output", pts: 15 },
+            { name: "does not use var keyword", pts: 10 },
+            { name: "uses const keyword", pts: 10 },
+            { name: "convertTemp 212 to 100", pts: 25 },
+            { name: "convertTemp 32 to 0", pts: 15 },
+            { name: "circleArea radius 5", pts: 15 },
+            { name: "circleArea radius 1", pts: 10 },
+          ];
+
+          let earned = 0;
+          const lines = ["# Unit 8.1 Autograder Summary", ""];
+          for (const t of tests) {
+            const a = assertions.find(x => x.title === t.name);
+            const passed = !!a && a.status === "passed";
+            if (passed) earned += t.pts;
+            lines.push((passed ? "✅" : "❌") + " " + t.name + " (" + t.pts + " pts)");
+          }
+          lines.push("", "**Score: " + earned + "/100**");
+          console.log(lines.join("\n"));
+          if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
+          NODE
+
+      - name: Prepare reporter env
+        shell: bash
+        run: |
+          echo "T_GREETING_RESULTS=${{ steps.t_greeting.outputs.result }}"   >> "$GITHUB_ENV"
+          echo "T_NO_VAR_RESULTS=${{ steps.t_no_var.outputs.result }}"       >> "$GITHUB_ENV"
+          echo "T_CONST_RESULTS=${{ steps.t_const.outputs.result }}"         >> "$GITHUB_ENV"
+          echo "T_TEMP212_RESULTS=${{ steps.t_temp212.outputs.result }}"     >> "$GITHUB_ENV"
+          echo "T_TEMP32_RESULTS=${{ steps.t_temp32.outputs.result }}"       >> "$GITHUB_ENV"
+          echo "T_CIRCLE5_RESULTS=${{ steps.t_circle5.outputs.result }}"     >> "$GITHUB_ENV"
+          echo "T_CIRCLE1_RESULTS=${{ steps.t_circle1.outputs.result }}"     >> "$GITHUB_ENV"
+
+      - name: Report grades
         uses: classroom-resources/autograding-grading-reporter@v1
-        env:
-          TEST_CONVERT_TEMP_RESULTS: ${{ steps.test_convert_temp.outputs.result }}
-          TEST_CIRCLE_AREA_RESULTS: ${{ steps.test_circle_area.outputs.result }}
         with:
-          runners: test_convert_temp,test_circle_area
+          runners: 't_greeting,t_no_var,t_const,t_temp212,t_temp32,t_circle5,t_circle1'
+          token: ${{ github.token }}
