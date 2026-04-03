@@ -73,3 +73,30 @@ function circleArea() {
   //         Example: radius 5 → "Area of the circle: 78.54"
 
 }
+
+
+// --- numberInfo() ---
+// This function prompts for a whole number and calculates
+// its square and its remainder when divided by 3.
+
+function numberInfo() {
+  // STEP 1: Use prompt() to ask "Enter a whole number"
+  //         Store the result in a variable using let.
+
+  // STEP 2: Use parseInt() to convert the string to a whole number.
+  //         parseInt("7") gives 7 — unlike parseFloat, it drops decimals.
+
+  // STEP 3: Calculate the square using the ** operator.
+  //         square = num ** 2
+  //         For example, 7 ** 2 = 49
+
+  // STEP 4: Calculate the remainder using the % operator.
+  //         remainder = num % 3
+  //         For example, 7 % 3 = 1 (7 ÷ 3 = 2 remainder 1)
+
+  // STEP 5: Use alert() to display the result.
+  //         The alert must say exactly:
+  //         "Square: [x], Remainder: [y]"
+  //         Example: 7 → "Square: 49, Remainder: 1"
+
+}

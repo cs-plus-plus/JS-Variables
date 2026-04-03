@@ -1,6 +1,6 @@
 # CS++ JavaScript — Variables & Math
 
-> **Unit 8.1** | 100 Points | 7 Automated Tests
+> **Unit 8.1** | 100 Points | 10 Automated Tests
 
 This is your first JavaScript assignment. You will learn how to create variables, do math, get input from the user, and display output — all using `prompt()` and `alert()`.
 
@@ -161,7 +161,7 @@ let formatted = whole.toFixed(2);  // "100.00"
 
 ## Assignment
 
-Complete the three functions in `script.js`. Each function is triggered by a button in `index.html`.
+Complete the four functions in `script.js`. Each function is triggered by a button in `index.html`.
 
 ### Warm-Up: greeting() — 15 points
 
@@ -191,11 +191,28 @@ Write a function that:
 
 The result must be rounded to **2 decimal places** using `.toFixed(2)`.
 
-### Code Quality — 20 points
+### numberInfo() — 25 points
+
+Write a function that:
+1. Prompts for a whole number
+2. Converts it using `parseInt()` (not `parseFloat` — we want a whole number)
+3. Calculates the **square** using the `**` operator: `num ** 2`
+4. Calculates the **remainder** when divided by 3 using the `%` operator: `num % 3`
+5. Alerts the result in this exact format: `Square: [x], Remainder: [y]`
+
+For example, if the user enters "7":
+- Square: 7 ** 2 = 49
+- Remainder: 7 % 3 = 1
+- Alert: `Square: 49, Remainder: 1`
+
+This function exercises the `**` (exponent), `%` (modulus), and `parseInt()` concepts from the textbook sections above.
+
+### Code Quality — 15 points
 
 The autograder also checks your code style:
-- **Do not use `var`** — use `let` and `const` instead (10 points)
-- **Use `const` at least once** — for any value that doesn't change (10 points)
+- **Do not use `var`** — use `let` and `const` instead (5 points)
+- **Use `const` at least once** — for any value that doesn't change (5 points)
+- **Use `parseInt()`** — for converting the prompt string to a whole number (5 points)
 
 ---
 
@@ -203,13 +220,16 @@ The autograder also checks your code style:
 
 | # | Test | Points | What the autograder checks |
 |---|------|--------|---------------------------|
-| 1 | greeting() output | 15 | Alerts contain the name and color entered |
-| 2 | No `var` keyword | 10 | Script does not declare variables with `var` |
-| 3 | Uses `const` | 10 | Script contains at least one `const` declaration |
-| 4 | convertTemp() — 212°F | 25 | Alerts exactly `Temperature in Celsius: 100.00` |
-| 5 | convertTemp() — 32°F | 15 | Alerts exactly `Temperature in Celsius: 0.00` |
-| 6 | circleArea() — r=5 | 15 | Alerts exactly `Area of the circle: 78.54` |
-| 7 | circleArea() — r=1 | 10 | Alerts exactly `Area of the circle: 3.14` |
+| 1 | greeting() output | 10 | Alerts contain the name and color entered |
+| 2 | No `var` keyword | 5 | Script does not declare variables with `var` |
+| 3 | Uses `const` | 5 | Script contains at least one `const` declaration |
+| 4 | Uses `parseInt()` | 5 | Script contains `parseInt(` |
+| 5 | convertTemp() — 212°F | 20 | Alerts exactly `Temperature in Celsius: 100.00` |
+| 6 | convertTemp() — 32°F | 10 | Alerts exactly `Temperature in Celsius: 0.00` |
+| 7 | circleArea() — r=5 | 10 | Alerts exactly `Area of the circle: 78.54` |
+| 8 | circleArea() — r=1 | 10 | Alerts exactly `Area of the circle: 3.14` |
+| 9 | numberInfo() — 7 | 15 | Alerts exactly `Square: 49, Remainder: 1` |
+| 10 | numberInfo() — 5 | 10 | Alerts exactly `Square: 25, Remainder: 2` |
 | | **Total** | **100** | |
 
 ---

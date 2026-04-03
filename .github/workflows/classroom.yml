@@ -87,6 +87,10 @@ jobs:
               expect(source).toMatch(/\bconst\s+[a-zA-Z_$]/);
             });
 
+            test('uses parseInt', function() {
+              expect(source).toMatch(/parseInt\s*\(/);
+            });
+
             test('convertTemp 212 to 100', function() {
               let alerts = runFunc('convertTemp', ['212']);
               expect(alerts.length).toBeGreaterThanOrEqual(1);
@@ -111,6 +115,18 @@ jobs:
               expect(alerts[0]).toBe('Area of the circle: 3.14');
             });
 
+            test('numberInfo with 7', function() {
+              let alerts = runFunc('numberInfo', ['7']);
+              expect(alerts.length).toBeGreaterThanOrEqual(1);
+              expect(alerts[0]).toBe('Square: 49, Remainder: 1');
+            });
+
+            test('numberInfo with 5', function() {
+              let alerts = runFunc('numberInfo', ['5']);
+              expect(alerts.length).toBeGreaterThanOrEqual(1);
+              expect(alerts[0]).toBe('Square: 25, Remainder: 2');
+            });
+
           });
           TESTEOF
 
@@ -123,7 +139,7 @@ jobs:
           setup-command: echo "ready"
           command: npx jest --runInBand --testNamePattern "greeting output$"
           timeout: 60
-          max-score: 15
+          max-score: 10
 
       - id: t_no_var
         name: does not use var keyword
@@ -133,7 +149,7 @@ jobs:
           setup-command: echo "ready"
           command: npx jest --runInBand --testNamePattern "does not use var keyword$"
           timeout: 60
-          max-score: 10
+          max-score: 5
 
       - id: t_const
         name: uses const keyword
@@ -143,7 +159,17 @@ jobs:
           setup-command: echo "ready"
           command: npx jest --runInBand --testNamePattern "uses const keyword$"
           timeout: 60
-          max-score: 10
+          max-score: 5
+
+      - id: t_parseint
+        name: uses parseInt
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: uses parseInt
+          setup-command: echo "ready"
+          command: npx jest --runInBand --testNamePattern "uses parseInt$"
+          timeout: 60
+          max-score: 5
 
       - id: t_temp212
         name: convertTemp 212 to 100
@@ -153,7 +179,7 @@ jobs:
           setup-command: echo "ready"
           command: npx jest --runInBand --testNamePattern "convertTemp 212 to 100$"
           timeout: 60
-          max-score: 25
+          max-score: 20
 
       - id: t_temp32
         name: convertTemp 32 to 0
@@ -163,7 +189,7 @@ jobs:
           setup-command: echo "ready"
           command: npx jest --runInBand --testNamePattern "convertTemp 32 to 0$"
           timeout: 60
-          max-score: 15
+          max-score: 10
 
       - id: t_circle5
         name: circleArea radius 5
@@ -173,7 +199,7 @@ jobs:
           setup-command: echo "ready"
           command: npx jest --runInBand --testNamePattern "circleArea radius 5$"
           timeout: 60
-          max-score: 15
+          max-score: 10
 
       - id: t_circle1
         name: circleArea radius 1
@@ -182,6 +208,26 @@ jobs:
           test-name: circleArea radius 1
           setup-command: echo "ready"
           command: npx jest --runInBand --testNamePattern "circleArea radius 1$"
+          timeout: 60
+          max-score: 10
+
+      - id: t_numinfo7
+        name: numberInfo with 7
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: numberInfo with 7
+          setup-command: echo "ready"
+          command: npx jest --runInBand --testNamePattern "numberInfo with 7$"
+          timeout: 60
+          max-score: 15
+
+      - id: t_numinfo5
+        name: numberInfo with 5
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: numberInfo with 5
+          setup-command: echo "ready"
+          command: npx jest --runInBand --testNamePattern "numberInfo with 5$"
           timeout: 60
           max-score: 10
 
@@ -197,13 +243,16 @@ jobs:
           const assertions = (jr.testResults||[]).flatMap(t => t.assertionResults || []);
 
           const tests = [
-            { name: "greeting output", pts: 15 },
-            { name: "does not use var keyword", pts: 10 },
-            { name: "uses const keyword", pts: 10 },
-            { name: "convertTemp 212 to 100", pts: 25 },
-            { name: "convertTemp 32 to 0", pts: 15 },
-            { name: "circleArea radius 5", pts: 15 },
+            { name: "greeting output", pts: 10 },
+            { name: "does not use var keyword", pts: 5 },
+            { name: "uses const keyword", pts: 5 },
+            { name: "uses parseInt", pts: 5 },
+            { name: "convertTemp 212 to 100", pts: 20 },
+            { name: "convertTemp 32 to 0", pts: 10 },
+            { name: "circleArea radius 5", pts: 10 },
             { name: "circleArea radius 1", pts: 10 },
+            { name: "numberInfo with 7", pts: 15 },
+            { name: "numberInfo with 5", pts: 10 },
           ];
 
           let earned = 0;
@@ -222,16 +271,19 @@ jobs:
       - name: Prepare reporter env
         shell: bash
         run: |
-          echo "T_GREETING_RESULTS=${{ steps.t_greeting.outputs.result }}"   >> "$GITHUB_ENV"
-          echo "T_NO_VAR_RESULTS=${{ steps.t_no_var.outputs.result }}"       >> "$GITHUB_ENV"
-          echo "T_CONST_RESULTS=${{ steps.t_const.outputs.result }}"         >> "$GITHUB_ENV"
-          echo "T_TEMP212_RESULTS=${{ steps.t_temp212.outputs.result }}"     >> "$GITHUB_ENV"
-          echo "T_TEMP32_RESULTS=${{ steps.t_temp32.outputs.result }}"       >> "$GITHUB_ENV"
-          echo "T_CIRCLE5_RESULTS=${{ steps.t_circle5.outputs.result }}"     >> "$GITHUB_ENV"
-          echo "T_CIRCLE1_RESULTS=${{ steps.t_circle1.outputs.result }}"     >> "$GITHUB_ENV"
+          echo "T_GREETING_RESULTS=${{ steps.t_greeting.outputs.result }}"     >> "$GITHUB_ENV"
+          echo "T_NO_VAR_RESULTS=${{ steps.t_no_var.outputs.result }}"         >> "$GITHUB_ENV"
+          echo "T_CONST_RESULTS=${{ steps.t_const.outputs.result }}"           >> "$GITHUB_ENV"
+          echo "T_PARSEINT_RESULTS=${{ steps.t_parseint.outputs.result }}"     >> "$GITHUB_ENV"
+          echo "T_TEMP212_RESULTS=${{ steps.t_temp212.outputs.result }}"       >> "$GITHUB_ENV"
+          echo "T_TEMP32_RESULTS=${{ steps.t_temp32.outputs.result }}"         >> "$GITHUB_ENV"
+          echo "T_CIRCLE5_RESULTS=${{ steps.t_circle5.outputs.result }}"       >> "$GITHUB_ENV"
+          echo "T_CIRCLE1_RESULTS=${{ steps.t_circle1.outputs.result }}"       >> "$GITHUB_ENV"
+          echo "T_NUMINFO7_RESULTS=${{ steps.t_numinfo7.outputs.result }}"     >> "$GITHUB_ENV"
+          echo "T_NUMINFO5_RESULTS=${{ steps.t_numinfo5.outputs.result }}"     >> "$GITHUB_ENV"
 
       - name: Report grades
         uses: classroom-resources/autograding-grading-reporter@v1
         with:
-          runners: 't_greeting,t_no_var,t_const,t_temp212,t_temp32,t_circle5,t_circle1'
+          runners: 't_greeting,t_no_var,t_const,t_parseint,t_temp212,t_temp32,t_circle5,t_circle1,t_numinfo7,t_numinfo5'
           token: ${{ github.token }}
