@@ -133,7 +133,7 @@ jobs:
       # === Graded steps (sum to 100) ===
       - id: t_greeting
         name: greeting output
-        uses: classroom-resources/autograding-command-grader@v1
+        uses: cs-plus-plus/autograding-command-grader@v1
         with:
           test-name: greeting output
           setup-command: echo "ready"
@@ -143,7 +143,7 @@ jobs:
 
       - id: t_no_var
         name: does not use var keyword
-        uses: classroom-resources/autograding-command-grader@v1
+        uses: cs-plus-plus/autograding-command-grader@v1
         with:
           test-name: does not use var keyword
           setup-command: echo "ready"
@@ -153,7 +153,7 @@ jobs:
 
       - id: t_const
         name: uses const keyword
-        uses: classroom-resources/autograding-command-grader@v1
+        uses: cs-plus-plus/autograding-command-grader@v1
         with:
           test-name: uses const keyword
           setup-command: echo "ready"
@@ -163,7 +163,7 @@ jobs:
 
       - id: t_parseint
         name: uses parseInt
-        uses: classroom-resources/autograding-command-grader@v1
+        uses: cs-plus-plus/autograding-command-grader@v1
         with:
           test-name: uses parseInt
           setup-command: echo "ready"
@@ -173,7 +173,7 @@ jobs:
 
       - id: t_temp212
         name: convertTemp 212 to 100
-        uses: classroom-resources/autograding-command-grader@v1
+        uses: cs-plus-plus/autograding-command-grader@v1
         with:
           test-name: convertTemp 212 to 100
           setup-command: echo "ready"
@@ -183,7 +183,7 @@ jobs:
 
       - id: t_temp32
         name: convertTemp 32 to 0
-        uses: classroom-resources/autograding-command-grader@v1
+        uses: cs-plus-plus/autograding-command-grader@v1
         with:
           test-name: convertTemp 32 to 0
           setup-command: echo "ready"
@@ -193,7 +193,7 @@ jobs:
 
       - id: t_circle5
         name: circleArea radius 5
-        uses: classroom-resources/autograding-command-grader@v1
+        uses: cs-plus-plus/autograding-command-grader@v1
         with:
           test-name: circleArea radius 5
           setup-command: echo "ready"
@@ -203,7 +203,7 @@ jobs:
 
       - id: t_circle1
         name: circleArea radius 1
-        uses: classroom-resources/autograding-command-grader@v1
+        uses: cs-plus-plus/autograding-command-grader@v1
         with:
           test-name: circleArea radius 1
           setup-command: echo "ready"
@@ -213,7 +213,7 @@ jobs:
 
       - id: t_numinfo7
         name: numberInfo with 7
-        uses: classroom-resources/autograding-command-grader@v1
+        uses: cs-plus-plus/autograding-command-grader@v1
         with:
           test-name: numberInfo with 7
           setup-command: echo "ready"
@@ -223,7 +223,7 @@ jobs:
 
       - id: t_numinfo5
         name: numberInfo with 5
-        uses: classroom-resources/autograding-command-grader@v1
+        uses: cs-plus-plus/autograding-command-grader@v1
         with:
           test-name: numberInfo with 5
           setup-command: echo "ready"
@@ -283,7 +283,7 @@ jobs:
           echo "T_NUMINFO5_RESULTS=${{ steps.t_numinfo5.outputs.result }}"     >> "$GITHUB_ENV"
 
       - name: Report grades
-        uses: classroom-resources/autograding-grading-reporter@v1
+        uses: cs-plus-plus/autograding-grading-reporter@v1
         with:
           runners: 't_greeting,t_no_var,t_const,t_parseint,t_temp212,t_temp32,t_circle5,t_circle1,t_numinfo7,t_numinfo5'
           token: ${{ github.token }}
