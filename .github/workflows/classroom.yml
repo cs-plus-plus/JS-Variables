@@ -41,6 +41,16 @@ jobs:
 
           const source = fs.readFileSync(path.resolve('script.js'), 'utf8');
 
+          // script.js with its comment lines removed. The STEP comments already
+          // say "Math.PI" and "parseInt()", so a check of the whole file would
+          // pass on untouched starter code.
+          function codeLines() {
+            return source.split('\n')
+              .map(function(line) { return line.trim(); })
+              .filter(function(line) { return !line.startsWith('//') && !line.startsWith('*'); })
+              .join('\n');
+          }
+
           function runFunc(funcName, promptValues) {
             let promptIndex = 0;
             const alerts = [];
@@ -83,12 +93,8 @@ jobs:
               }
             });
 
-            test('uses const keyword', function() {
-              expect(source).toMatch(/\bconst\s+[a-zA-Z_$]/);
-            });
-
             test('uses parseInt', function() {
-              expect(source).toMatch(/parseInt\s*\(/);
+              expect(codeLines()).toMatch(/parseInt\s*\(/);
             });
 
             test('convertTemp 212 to 100', function() {
@@ -113,6 +119,10 @@ jobs:
               let alerts = runFunc('circleArea', ['1']);
               expect(alerts.length).toBeGreaterThanOrEqual(1);
               expect(alerts[0]).toBe('Area of the circle: 3.14');
+            });
+
+            test('uses Math.PI', function() {
+              expect(codeLines()).toMatch(/Math\.PI\b/);
             });
 
             test('numberInfo with 7', function() {
@@ -148,16 +158,6 @@ jobs:
           test-name: does not use var keyword
           setup-command: echo "ready"
           command: npx jest --runInBand --testNamePattern "does not use var keyword$"
-          timeout: 60
-          max-score: 5
-
-      - id: t_const
-        name: uses const keyword
-        uses: cs-plus-plus/autograding-command-grader@v1
-        with:
-          test-name: uses const keyword
-          setup-command: echo "ready"
-          command: npx jest --runInBand --testNamePattern "uses const keyword$"
           timeout: 60
           max-score: 5
 
@@ -211,6 +211,16 @@ jobs:
           timeout: 60
           max-score: 10
 
+      - id: t_mathpi
+        name: uses Math.PI
+        uses: cs-plus-plus/autograding-command-grader@v1
+        with:
+          test-name: uses Math.PI
+          setup-command: echo "ready"
+          command: npx jest --runInBand --testNamePattern "uses Math\\.PI$"
+          timeout: 60
+          max-score: 5
+
       - id: t_numinfo7
         name: numberInfo with 7
         uses: cs-plus-plus/autograding-command-grader@v1
@@ -245,12 +255,12 @@ jobs:
           const tests = [
             { name: "greeting output", pts: 10 },
             { name: "does not use var keyword", pts: 5 },
-            { name: "uses const keyword", pts: 5 },
             { name: "uses parseInt", pts: 5 },
             { name: "convertTemp 212 to 100", pts: 20 },
             { name: "convertTemp 32 to 0", pts: 10 },
             { name: "circleArea radius 5", pts: 10 },
             { name: "circleArea radius 1", pts: 10 },
+            { name: "uses Math.PI", pts: 5 },
             { name: "numberInfo with 7", pts: 15 },
             { name: "numberInfo with 5", pts: 10 },
           ];
@@ -273,17 +283,17 @@ jobs:
         run: |
           echo "T_GREETING_RESULTS=${{ steps.t_greeting.outputs.result }}"     >> "$GITHUB_ENV"
           echo "T_NO_VAR_RESULTS=${{ steps.t_no_var.outputs.result }}"         >> "$GITHUB_ENV"
-          echo "T_CONST_RESULTS=${{ steps.t_const.outputs.result }}"           >> "$GITHUB_ENV"
           echo "T_PARSEINT_RESULTS=${{ steps.t_parseint.outputs.result }}"     >> "$GITHUB_ENV"
           echo "T_TEMP212_RESULTS=${{ steps.t_temp212.outputs.result }}"       >> "$GITHUB_ENV"
           echo "T_TEMP32_RESULTS=${{ steps.t_temp32.outputs.result }}"         >> "$GITHUB_ENV"
           echo "T_CIRCLE5_RESULTS=${{ steps.t_circle5.outputs.result }}"       >> "$GITHUB_ENV"
           echo "T_CIRCLE1_RESULTS=${{ steps.t_circle1.outputs.result }}"       >> "$GITHUB_ENV"
+          echo "T_MATHPI_RESULTS=${{ steps.t_mathpi.outputs.result }}"         >> "$GITHUB_ENV"
           echo "T_NUMINFO7_RESULTS=${{ steps.t_numinfo7.outputs.result }}"     >> "$GITHUB_ENV"
           echo "T_NUMINFO5_RESULTS=${{ steps.t_numinfo5.outputs.result }}"     >> "$GITHUB_ENV"
 
       - name: Report grades
         uses: cs-plus-plus/autograding-grading-reporter@v1
         with:
-          runners: 't_greeting,t_no_var,t_const,t_parseint,t_temp212,t_temp32,t_circle5,t_circle1,t_numinfo7,t_numinfo5'
+          runners: 't_greeting,t_no_var,t_parseint,t_temp212,t_temp32,t_circle5,t_circle1,t_mathpi,t_numinfo7,t_numinfo5'
           token: ${{ github.token }}

@@ -7,6 +7,12 @@
         "ms-vscode.live-server"
       ],
       "settings": {
+        // Hide dot-folders (.github, .devcontainer, .vscode) so students only see their
+        // code, and keep the Copilot Chat panel closed when the project opens.
+        "files.exclude": { "**/.*": true },
+        "workbench.secondarySideBar.defaultVisibility": "hidden",
+        "workbench.editor.empty.hint": "hidden",
+        "terminal.integrated.initialHint": false,
         "livePreview.server.keepAlive": true,
         "livePreview.defaultPreviewPath": "index.html"
       }

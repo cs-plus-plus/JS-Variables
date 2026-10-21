@@ -163,7 +163,7 @@ let formatted = whole.toFixed(2);  // "100.00"
 
 Complete the four functions in `script.js`. Each function is triggered by a button in `index.html`.
 
-### Warm-Up: greeting() — 15 points
+### Warm-Up: greeting() — 10 points
 
 Write a function that:
 1. Prompts for the user's name
@@ -173,7 +173,7 @@ Write a function that:
 For example, if the user enters "Alice" and "blue", the alert should say:
 `Hello, Alice! Your favorite color is blue.`
 
-### convertTemp() — 40 points
+### convertTemp() — 30 points
 
 Write a function that:
 1. Prompts for a temperature in Fahrenheit
@@ -182,7 +182,7 @@ Write a function that:
 
 The result must be rounded to **2 decimal places** using `.toFixed(2)`.
 
-### circleArea() — 25 points
+### circleArea() — 20 points
 
 Write a function that:
 1. Prompts for a circle's radius
@@ -211,8 +211,10 @@ This function exercises the `**` (exponent), `%` (modulus), and `parseInt()` con
 
 The autograder also checks your code style:
 - **Do not use `var`** — use `let` and `const` instead (5 points)
-- **Use `const` at least once** — for any value that doesn't change (5 points)
 - **Use `parseInt()`** — for converting the prompt string to a whole number (5 points)
+- **Use `Math.PI`** — in `circleArea()`, instead of typing 3.14159 yourself (5 points)
+
+Comment lines don't count for the `parseInt()` and `Math.PI` checks: the STEP comments in `script.js` mention them, so they have to appear in your actual code.
 
 ---
 
@@ -222,12 +224,12 @@ The autograder also checks your code style:
 |---|------|--------|---------------------------|
 | 1 | greeting() output | 10 | Alerts contain the name and color entered |
 | 2 | No `var` keyword | 5 | Script does not declare variables with `var` |
-| 3 | Uses `const` | 5 | Script contains at least one `const` declaration |
-| 4 | Uses `parseInt()` | 5 | Script contains `parseInt(` |
-| 5 | convertTemp() — 212°F | 20 | Alerts exactly `Temperature in Celsius: 100.00` |
-| 6 | convertTemp() — 32°F | 10 | Alerts exactly `Temperature in Celsius: 0.00` |
-| 7 | circleArea() — r=5 | 10 | Alerts exactly `Area of the circle: 78.54` |
-| 8 | circleArea() — r=1 | 10 | Alerts exactly `Area of the circle: 3.14` |
+| 3 | Uses `parseInt()` | 5 | Your code (not a comment) contains `parseInt(` |
+| 4 | convertTemp() — 212°F | 20 | Alerts exactly `Temperature in Celsius: 100.00` |
+| 5 | convertTemp() — 32°F | 10 | Alerts exactly `Temperature in Celsius: 0.00` |
+| 6 | circleArea() — r=5 | 10 | Alerts exactly `Area of the circle: 78.54` |
+| 7 | circleArea() — r=1 | 10 | Alerts exactly `Area of the circle: 3.14` |
+| 8 | Uses `Math.PI` | 5 | Your code (not a comment) contains `Math.PI` |
 | 9 | numberInfo() — 7 | 15 | Alerts exactly `Square: 49, Remainder: 1` |
 | 10 | numberInfo() — 5 | 10 | Alerts exactly `Square: 25, Remainder: 2` |
 | | **Total** | **100** | |
